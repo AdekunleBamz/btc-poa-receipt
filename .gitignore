@@ -15,3 +15,4 @@ settings/*.toml
 
 # Keep example settings
 !settings/*.example.toml
+.vercel
