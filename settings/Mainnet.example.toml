@@ -1,0 +1,11 @@
+# Mainnet deployment settings
+# Copy this file to Mainnet.toml and add your mnemonic
+
+[network]
+name = "mainnet"
+stacks_node_rpc_address = "https://api.hiro.so"
+deployment_fee_rate = 10
+
+[accounts.deployer]
+mnemonic = "<YOUR_24_WORD_MNEMONIC_HERE>"
+# ⚠️ NEVER commit your real mnemonic to git!

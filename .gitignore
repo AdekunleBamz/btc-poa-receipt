@@ -1,5 +1,17 @@
 node_modules/
 receipts.db
+receipts.json
 .env
 dist/
 *.log
+
+# Sensitive deployment files (contain mnemonics/private keys)
+settings/Mainnet.toml
+settings/Testnet.toml
+settings/*.toml
+
+# Clarinet cache
+.cache/
+
+# Keep example settings
+!settings/*.example.toml
