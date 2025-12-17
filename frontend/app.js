@@ -200,55 +200,33 @@ function handleTransactionSubmitted(txId) {
   pollForReceipt(txId);
 }
 
-// Poll Stacks API directly for transaction confirmation
+// Poll backend for receipt (created by Chainhook webhook)
 async function pollForReceipt(txId) {
-  const maxAttempts = 60; // 5 minutes max
+  const maxAttempts = 120; // 10 minutes max
   let attempts = 0;
   
   const normalizedTxId = txId.startsWith('0x') ? txId : `0x${txId}`;
-  const apiBase = CONFIG.network === 'mainnet' 
-    ? 'https://api.mainnet.hiro.so' 
-    : 'https://api.testnet.hiro.so';
   
-  elements.statusMessage.textContent = 'Transaction submitted. Receipt may take a few minutes to generate.';
+  elements.statusMessage.textContent = 'Transaction submitted. Waiting for Chainhook confirmation...';
   
   const poll = async () => {
     try {
-      // Poll Stacks API directly for tx status
-      const txResponse = await fetch(`${apiBase}/extended/v1/tx/${normalizedTxId}`);
+      const response = await fetch(`${CONFIG.backendUrl}/api/receipt/by-txid?txid=${normalizedTxId}`);
       
-      if (txResponse.ok) {
-        const txData = await txResponse.json();
-        
-        if (txData.tx_status === 'success') {
-          // Transaction confirmed! Build receipt from chain data
-          const receipt = {
-            id: normalizedTxId.slice(2, 18), // First 16 chars as ID
-            submission_id: normalizedTxId,
-            proof_hash: extractProofHash(txData),
-            block_height: txData.block_height,
-            timestamp: txData.burn_block_time_iso || new Date().toISOString(),
-            sender: txData.sender_address,
-            tx_id: normalizedTxId
-          };
-          displayReceipt(receipt);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && !data.error) {
+          displayReceipt(data);
           return;
-        } else if (txData.tx_status === 'pending') {
-          attempts++;
-          if (attempts < maxAttempts) {
-            elements.statusMessage.textContent = `Transaction pending... (${attempts * 5}s)`;
-            setTimeout(poll, 5000);
-          }
-        } else if (txData.tx_status === 'abort_by_response' || txData.tx_status === 'abort_by_post_condition') {
-          elements.statusMessage.textContent = `Transaction failed: ${txData.tx_status}`;
         }
+      }
+      
+      attempts++;
+      if (attempts < maxAttempts) {
+        elements.statusMessage.textContent = `Waiting for Chainhook... (${attempts * 5}s)`;
+        setTimeout(poll, 5000);
       } else {
-        // Transaction not found yet, keep polling
-        attempts++;
-        if (attempts < maxAttempts) {
-          elements.statusMessage.textContent = `Waiting for transaction... (${attempts * 5}s)`;
-          setTimeout(poll, 5000);
-        }
+        elements.statusMessage.textContent = 'Timeout waiting for Chainhook. Check explorer for tx status.';
       }
     } catch (error) {
       console.error('Poll error:', error);
@@ -261,25 +239,6 @@ async function pollForReceipt(txId) {
   
   // Start polling after a short delay
   setTimeout(poll, 5000);
-}
-
-// Extract proof hash from transaction data
-function extractProofHash(txData) {
-  try {
-    if (txData.contract_call && txData.contract_call.function_args) {
-      const hashArg = txData.contract_call.function_args.find(arg => arg.name === 'hash');
-      if (hashArg) {
-        return hashArg.repr || hashArg.hex;
-      }
-    }
-    // Fallback: use current hash if available
-    if (currentHash) {
-      return '0x' + toHex(currentHash);
-    }
-  } catch (e) {
-    console.error('Error extracting hash:', e);
-  }
-  return 'Unknown';
 }
 
 // Display the receipt
@@ -319,52 +278,28 @@ async function verifyProof(e) {
   const hashHex = '0x' + toHex(hashBytes);
   
   elements.verifyResult.classList.remove('hidden', 'success', 'not-found');
-  elements.verifyResult.innerHTML = '<strong>🔍 Searching blockchain...</strong>';
+  elements.verifyResult.innerHTML = '<strong>🔍 Searching...</strong>';
   
   try {
-    // Query the smart contract directly for this hash
-    const apiBase = CONFIG.network === 'mainnet' 
-      ? 'https://api.mainnet.hiro.so' 
-      : 'https://api.testnet.hiro.so';
+    const response = await fetch(`${CONFIG.backendUrl}/api/verify?hash=${encodeURIComponent(hashHex)}`);
+    const result = await response.json();
     
-    // Search for contract call transactions with this hash
-    const searchUrl = `${apiBase}/extended/v1/address/${CONFIG.contractAddress}.${CONFIG.contractName}/transactions?limit=50`;
-    const response = await fetch(searchUrl);
-    
-    if (response.ok) {
-      const data = await response.json();
-      
-      // Look for a transaction with matching hash in function args
-      const matchingTx = data.results?.find(tx => {
-        if (tx.tx_type === 'contract_call' && tx.contract_call?.function_name === 'submit-proof') {
-          const hashArg = tx.contract_call.function_args?.find(arg => arg.name === 'hash');
-          if (hashArg) {
-            const txHash = hashArg.repr || '';
-            return txHash.toLowerCase() === hashHex.toLowerCase();
-          }
-        }
-        return false;
-      });
-      
-      if (matchingTx && matchingTx.tx_status === 'success') {
-        elements.verifyResult.classList.add('success');
-        elements.verifyResult.innerHTML = `
-          <strong>✅ Proof Verified on Blockchain!</strong><br>
-          Block Height: ${matchingTx.block_height}<br>
-          Timestamp: ${new Date(matchingTx.burn_block_time_iso).toLocaleString()}<br>
-          Sender: ${matchingTx.sender_address}<br>
-          <a href="https://explorer.stacks.co/txid/${matchingTx.tx_id}?chain=${CONFIG.network}" target="_blank">View on Explorer</a>
-        `;
-        return;
-      }
+    if (result.verified) {
+      elements.verifyResult.classList.add('success');
+      elements.verifyResult.innerHTML = `
+        <strong>✅ Proof Verified!</strong><br>
+        Block Height: ${result.receipt.block_height}<br>
+        Timestamp: ${new Date(result.receipt.timestamp).toLocaleString()}<br>
+        Sender: ${result.receipt.sender}<br>
+        <a href="${CONFIG.backendUrl}/api/receipt/${result.receipt.id}" target="_blank">View Receipt</a>
+      `;
+    } else {
+      elements.verifyResult.classList.add('not-found');
+      elements.verifyResult.innerHTML = `
+        <strong>❌ No proof found for this content</strong><br>
+        <small>Hash: ${hashHex}</small>
+      `;
     }
-    
-    // No match found
-    elements.verifyResult.classList.add('not-found');
-    elements.verifyResult.innerHTML = `
-      <strong>❌ No proof found for this content</strong><br>
-      <small>Hash: ${hashHex}</small>
-    `;
   } catch (error) {
     console.error('Verify error:', error);
     elements.verifyResult.classList.add('not-found');
