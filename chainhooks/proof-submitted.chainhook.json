@@ -7,32 +7,16 @@
     "mainnet": {
       "if_this": {
         "scope": "print_event",
-        "contract_identifier": "SP_DEPLOYER_ADDRESS.proof-of-action",
+        "contract_identifier": "SP31G2FZ5JN87BATZMP4ZRYE5F7WZQDNEXJ7G7X97.proof-of-action",
         "contains": "proof-submitted"
       },
       "then_that": {
         "http_post": {
-          "url": "https://your-backend.com/api/webhook/proof",
-          "authorization_header": "Bearer YOUR_WEBHOOK_SECRET"
+          "url": "https://btc-poa-phessophissys-projects.vercel.app/api/webhook/proof",
+          "authorization_header": "Bearer btc-poa"
         }
       },
-      "start_block": 1,
-      "decode_clarity_values": true,
-      "include_contract_abi": false
-    },
-    "testnet": {
-      "if_this": {
-        "scope": "print_event",
-        "contract_identifier": "ST_DEPLOYER_ADDRESS.proof-of-action",
-        "contains": "proof-submitted"
-      },
-      "then_that": {
-        "http_post": {
-          "url": "http://localhost:3001/api/webhook/proof",
-          "authorization_header": "Bearer dev-webhook-secret"
-        }
-      },
-      "start_block": 1,
+      "start_block": 5173000,
       "decode_clarity_values": true,
       "include_contract_abi": false
     }
