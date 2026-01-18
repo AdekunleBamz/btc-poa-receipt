@@ -2,6 +2,7 @@
   "name": "btc-poa-receipt-backend",
   "version": "1.0.0",
   "description": "Backend server for Bitcoin Proof-of-Action receipts",
+  "author": "Adekunle Bamz",
   "type": "module",
   "main": "server.js",
   "scripts": {

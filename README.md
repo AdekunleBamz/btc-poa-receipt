@@ -190,4 +190,57 @@ btc-poa-receipt/
 
 ## License
 
-MIT
+MIT License
+
+Copyright (c) 2024 Adekunle Bamz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Contributing
+
+We welcome contributions to the Bitcoin Proof-of-Action Receipt System! Here's how you can help:
+
+### Ways to Contribute
+- **Bug Fixes**: Report and fix issues in the smart contract, backend, or frontend
+- **Security Improvements**: Enhance security measures and audit the system
+- **Documentation**: Improve README, add tutorials, or create usage guides
+- **Testing**: Add more comprehensive tests for all components
+- **Features**: Propose and implement new functionality
+- **Performance**: Optimize contract gas usage or backend performance
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Make your changes and ensure tests pass
+4. Run the full test suite: `npm test` in both contract and backend directories
+5. Submit a pull request with a clear description
+
+### Code Standards
+- Follow existing code style and patterns
+- Add tests for new functionality
+- Update documentation for significant changes
+- Ensure backward compatibility where possible
+
+### Security Considerations
+When contributing, please consider:
+- Smart contract security best practices
+- Input validation and sanitization
+- Proper error handling
+- Gas optimization
+- Chainhook webhook security
