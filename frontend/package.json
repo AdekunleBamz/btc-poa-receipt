@@ -1,19 +1,19 @@
 {
-  "name": "btc-poa-receipt-frontend",
-  "version": "1.0.0",
-  "description": "Frontend for Bitcoin Proof-of-Action receipts",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@stacks/connect": "^7.7.1",
-    "@stacks/network": "^6.13.0",
-    "@stacks/transactions": "^6.13.0"
-  },
-  "devDependencies": {
-    "vite": "^5.0.10"
-  }
+    "name": "btc-poa-receipt-frontend",
+    "version": "1.0.0",
+    "description": "Frontend for Bitcoin Proof-of-Action receipts",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@stacks/connect": "^7.7.1",
+        "@stacks/network": "^6.13.0",
+        "@stacks/transactions": "^6.13.0"
+    },
+    "devDependencies": {
+        "vite": "^5.0.10"
+    }
 }
