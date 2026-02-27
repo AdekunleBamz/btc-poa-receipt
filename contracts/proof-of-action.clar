@@ -5,6 +5,7 @@
 (define-constant contract-owner tx-sender)
 (define-constant err-insufficient-fee (err u100))
 (define-constant err-transfer-failed (err u101))
+(define-constant err-invalid-hash (err u102))
 
 ;; Fee amount in microSTX (0.001 STX = 1000 microSTX)
 (define-constant submission-fee u1000)
@@ -35,6 +36,9 @@
       (current-height block-height)
       (submission-count (+ (var-get total-submissions) u1))
     )
+    ;; Validate hash is not empty
+    (asserts! (> (len hash) u0) err-invalid-hash)
+    
     ;; Transfer fee to contract owner
     (try! (stx-transfer? submission-fee tx-sender contract-owner))
     
